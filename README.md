@@ -1,2 +1,2 @@
 # elearning-modules
-HTML eLearning modules for the Market America new employee onboarding track.
+HTML eLearning module repository for Market America employees
