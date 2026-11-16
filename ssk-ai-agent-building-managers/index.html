@@ -1061,8 +1061,8 @@ var N = {
 };
 N.s411 = 'You now know how to build an agent. Now build yours. First, choose an idea. Every idea follows the same pattern. Something goes in. Your own files or Market America tools supply the facts. Something predictable comes out. And a person reviews it before it’s used. Where the output reaches customers or is regulated, that human review is vital. Choose a department to browse its ideas. Each card shows what to give the agent, what it produces, the setup, and the review. If your department isn’t listed, start with the common ideas and adapt them.';
 N.s421 = 'Now see sample instructions. Choose your department to read starter instructions in the five parts. Replace each item in curly braces with your own details. You can also ask an AI model to draft and format your instructions. Use the example chat prompt on screen, and edit the result as needed.';
-N.s431 = 'Do you need a second agent? An additional agent is needed whenever a task moves outside an agent’s specific instructions, knowledge, or tool access, and needs a different specialist to complete the next step. This handoff transfers the conversation to a specialist. Answer up to four yes or no questions about a task you have in mind. If the answer is a handoff, an optional section shows how to set one up, using a Marketing drafter that hands off to the Claim-onary Compliance Sub-Agent. Handoffs are marked Beta, so test them after you save. A person still reviews the final result before it’s used. Nothing is scored.';
-N.s442 = 'Agents need upkeep. Use the tabs. Edit: when your process, template, or wording changes, update the instructions, save, and check that your selections are still in place. Duplicate: before a big change, make a copy, change the copy, test it, and keep whichever works better. Memory: when a fact changes, add it as a memory, click Use memory, and make sure your agent’s optional memory directive is in its instructions.';
+N.s431 = 'Do you need a second agent? An additional agent is needed whenever a task moves outside an agent’s specific instructions, knowledge, or tool access, and needs a different specialist to complete the next step. This handoff transfers the conversation to a specialist. Here is an example. The Accounts Payable Agent captures invoices, matches P O s, checks vendor records, and flags errors. It then hands off to the Payment Authorization Agent, which routes approvals, schedules payments, updates E R P and accounting systems, and confirms remittance. A person still reviews the final result before it’s used.';
+N.s442 = 'To ensure optimal performance, periodic updates to your agent’s instructions and data resources are necessary. You can accomplish this in three ways. Click each method for details. Edit: open your agent in the Agent Builder, edit the instructions for the part that changed, remove, add, or update reference files, which are your file search files, then click Save and check that your selections are still in place. Duplicate: before a big change, make a copy, change the copy, test it, and keep whichever works better. Memory: when a fact changes, add it as a memory, click Use memory, and make sure your agent’s optional memory directive is in its instructions.';
 /* Phonetic spellings for the browser voice only (the transcript keeps the real spelling). */
 var PHONETIC = [[/MAT-GPT/g, 'Mat G P T'], [/\bUFO\b/g, 'U F O'], [/\bBV\b/g, 'B V'], [/nutraMetrix/g, 'nutra Metrix']];
 
@@ -1585,68 +1585,15 @@ addScreen({
   id: 's4.3.1', tab: 6, nav: 'Do you need a second agent?', narration: N.s431,
   eyebrow: EY(4, 'Build yours'), h1: 'Do you need <em>a second agent?</em>',
   build: function(sec, go){
-    sec.innerHTML = headHTML(this) + '<div class="body">' + instrHTML('Answer up to four yes/no questions about a task you have in mind.') + '<p class="callout"><strong>An additional agent is needed</strong> whenever a task moves outside an agent’s specific instructions, knowledge, or tool access and needs a different specialist to complete the next step. This handoff transfers the conversation to a specialist, such as the Claim-onary Compliance Sub-Agent. A chain, which passes work through three or more agents in a sequence, is rarely needed.</p><div id="dt" class="dstage" aria-live="polite"></div><div id="ho-wrap" hidden>' + handoffHTML() + '</div>' + nextRow() + '</div>';
-    var dt = $('#dt', sec), S = { hist: [], cur: 'start' }, kb = false;
-    function receipt(){
-      var last = S.hist[S.hist.length - 1]; if (!last || last.id === 'start') return '';
-      var isRes = !!DT_R[S.cur], ans, q;
-      if (last.id === 'r_reeval'){ ans = 'Treat as single domain'; q = ''; } else { ans = last.ans === 'yes' ? 'Yes' : 'No'; q = DT_Q[last.id].q; }
-      var lead = last.id === 'r_reeval' ? 'You chose <strong>' + esc(ans) + '</strong>.' : 'You answered <strong>' + esc(ans) + '</strong> to: ' + esc(q);
-      return '<div class="receipt"><span class="rck" aria-hidden="true">✓</span><div><p class="rt">' + lead + '</p><p class="rn">' + (isRes ? 'Based on your answers, here is your recommendation:' : 'Based on that answer, here is your next question:') + '</p></div></div>';
-    }
-    function rStart(){
-      return '<div class="card stack"><span class="mlab">Start</span><h2 class="h2" tabindex="-1" id="dth">What task are you planning for?</h2>' +
-        '<p class="pathnote">Think about the task, then click Start. You’ll answer up to four yes/no questions.</p>' +
-        '<div class="btn-row"><button type="button" class="btn primary" data-act="start">Start &rarr;</button></div></div>';
-    }
-    function rQuestion(){
-      var n = DT_Q[S.cur];
-      return receipt() + '<div class="card stack" style="animation:rise .4s ease-out both"><span class="mlab">Question · Step ' + (S.hist.length) + '</span><h2 class="h2" tabindex="-1" id="dth">' + esc(n.q) + '</h2>' +
-        '<p class="pathnote">' + esc(n.help) + '</p><p class="pathnote"><strong>Examples:</strong> ' + esc(n.ex.join(' · ')) + '</p>' +
-        '<p style="font-weight:700">Click Yes or No to continue.</p>' +
-        '<div class="dopts"><button type="button" class="dopt" data-act="ans" data-v="yes"><span class="t">Yes</span><span class="d">' + esc(n.yes.d) + '</span></button>' +
-        '<button type="button" class="dopt" data-act="ans" data-v="no"><span class="t">No</span><span class="d">' + esc(n.no.d) + '</span></button></div>' +
-        '<div class="btn-row"><button type="button" class="btn lite small" data-act="back">← Back</button><button type="button" class="btn lite small" data-act="restart">Start over</button></div></div>';
-    }
-    function tile(t){ return '<div class="dtile"><div class="k">' + esc(t.k) + '</div><div class="v">' + esc(t.v) + '</div><div class="u">' + esc(t.u) + '</div></div>'; }
-    function rResult(){
-      var r = DT_R[S.cur], body = '';
-      if (r.kind === 'two') body = '<div class="pair">' + tile(r.a) + '<div class="dlink"><span class="arr" aria-hidden="true">→</span><span>' + esc(r.link) + '</span></div>' + tile(r.b) + '</div>';
-      else if (r.kind === 'one') body = '<div class="pair solo">' + tile(r.a) + '</div>';
-      else body = '<p class="fres">Ask whether one well-briefed agent could cover both areas. If it can, treat the task as a single domain and continue to the risk check.</p>';
-      var why = S.hist.filter(function(e){ return e.id !== 'start'; }).map(function(e){
-        return '<li class="y">' + IC_OK + '<span><span class="vh">Yes. </span>' + esc(e.id === 'r_reeval' ? 'You re-checked the task and treated it as a single domain.' : DT_Q[e.id][e.ans].why) + '</span></li>';
-      }).join('');
-      var acts = '';
-      if (r.kind === 're') acts += '<button type="button" class="btn primary" data-act="reeval">Treat as single domain &rarr;</button>';
-      acts += '<button type="button" class="btn ' + (r.kind === 're' ? 'lite' : 'primary') + ' small" data-act="restart">Start over</button><button type="button" class="btn lite small" data-act="back">← Back</button>';
-      return receipt() + '<div class="dres ' + (r.kind === 'one' ? 'one' : (r.kind === 're' ? 're' : '')) + '"><span class="mlab">Recommendation</span><h2 tabindex="-1" id="dth">' + esc(r.title) + '</h2>' +
-        '<div class="pillrow"><span class="pill2">' + esc(r.pill) + '</span><span class="pathnote">' + esc(r.pattern) + '</span></div>' +
-        '<p>' + esc(r.sum) + '</p>' + body +
-        '<div><p class="fsub" style="margin-bottom:8px">Why this fits</p><ul class="fl">' + why + '</ul></div>' +
-        '<p class="fres">A person still reviews the final result before it is used.</p>' +
-        '<p class="pathnote">Chains are reserved for longer sequences of three or more agents, where each step builds on the last. Most tasks don’t need one.</p>' +
-        '<div class="btn-row">' + acts + '</div></div>';
-    }
-    function render(){
-      dt.innerHTML = S.cur === 'start' ? rStart() : (DT_R[S.cur] ? rResult() : rQuestion());
-      var hw = $('#ho-wrap', sec); if (hw) hw.hidden = !(DT_R[S.cur] && DT_R[S.cur].kind === 'two');
-      if (kb){ var h = $('#dth', dt); if (h) h.focus({ preventScroll: true }); }
-      if (S.cur !== 'start'){ try { dt.scrollIntoView({ block: 'start' }); } catch (e) {} }
-    }
-    dt.addEventListener('click', function(ev){
-      var b = ev.target.closest('[data-act]'); if (!b) return;
-      kb = ev.detail === 0;
-      var act = b.getAttribute('data-act');
-      if (act === 'start'){ S.hist.push({ id: 'start', ans: 'text' }); S.cur = 'expertise'; render(); }
-      else if (act === 'ans'){ var v = b.getAttribute('data-v'); S.hist.push({ id: S.cur, ans: v }); S.cur = DT_Q[S.cur][v].to; render(); }
-      else if (act === 'reeval'){ S.hist.push({ id: 'r_reeval', ans: 'single' }); S.cur = 'risk'; render(); }
-      else if (act === 'back'){ var e = S.hist.pop(); if (e){ S.cur = e.id === 'start' ? 'start' : e.id; render(); } }
-      else if (act === 'restart'){ S.hist = []; S.cur = 'start'; render(); }
-    });
-    sec._dtRender = render; render(); wireHandoff(sec); wireNext(sec, go);
+    sec.innerHTML = headHTML(this) + '<div class="body">' + '<p class="callout"><strong>An additional agent is needed</strong> whenever a task moves outside an agent’s specific instructions, knowledge, or tool access and needs a different specialist to complete the next step. This handoff transfers the conversation to a specialist, such as the Claim-onary Compliance Sub-Agent. A chain, which passes work through three or more agents in a sequence, is rarely needed.</p>' +
+      '<h2 class="h2">Example: two agents, one handoff</h2>' +
+      '<div class="pair"><div class="dtile"><div class="k">Agent 1</div><div class="v">Accounts Payable Agent</div><div class="u">Captures invoices, matches POs, checks vendor records, flags errors.</div></div>' +
+      '<div class="dlink"><span class="arr" aria-hidden="true">→</span><span>hands off to</span></div>' +
+      '<div class="dtile"><div class="k">Agent 2</div><div class="v">Payment Authorization Agent</div><div class="u">Routes approvals, schedules payments, updates ERP/accounting systems, and confirms remittance.</div></div></div>' +
+      nextRow() + '</div>';
+    wireNext(sec, go);
   },
-  enter: function(sec){ if (sec._dtRender && SCREENS_dtStart(sec)) sec._dtRender(); }
+  enter: function(sec){ fillChips(sec); }
 });
 function SCREENS_dtStart(sec){ return !!$('[data-act="start"]', sec); }
 
@@ -1834,8 +1781,8 @@ var DOCX_MIME = "application/vnd.openxmlformats-officedocument.wordprocessingml.
    ===================================================================== */
 N.s211 = 'In Module 1 you picked a task worth building an agent for. Now let’s find where agents are built. To start a brand-new agent, begin in a chat with one of the regular AI models, not an agent. Then click the Agent button in the far left panel. A blank Agent Builder opens, ready for your first agent. You can also open an agent you already have, by clicking My Agents in the model menu. You can also open MAT-GPT for reference at chat dot Market America dot com.';
 N.s221 = 'This is the Agent Builder. Every agent is made of the same six parts. Who it is, what it should do, which model runs it, what it can use, such as files, web search, and connected tools, which Market America tools it can call, and how you save it. Three fields are required: the name, the category, and the model. Read the notes beside each part of the screenshot. A few extra items, such as Tools, Actions, and Support Contact, aren’t needed for your first agent.';
-N.s222 = 'Start with the basics. Give your agent a clear name, which is required, and a short description of its job, so you can recognize it later. The category is also required. General is the default, and for a personal agent you can leave it there. An icon is optional, but a custom image makes your agent easy to spot.';
-N.s223 = 'Instructions are the heart of your agent. This is where you tell it who it is, what to do, and what to avoid. Vague instructions give vague results. Specific ones give you results you can use. Specific instructions are what ensure the best results. Module 3 shows a five-part structure for writing them. You may notice a Variables button here. You don’t need it. For now, compare these two examples.';
+N.s222 = 'Start with the basics. Give your agent a clear name, which is required, and a short description of its job, so you can recognize it later. The category is also required. General is the default, and for a personal agent you can leave it there. An icon is optional, but a custom image makes your agent easy to spot. A clear name, description, and icon help you find the right agent later.';
+N.s223 = 'Instructions are the heart of your agent. This is where you tell it who it is, what to do, and what to avoid. Vague instructions give vague results. Specific ones give you results you can use. Specific instructions are what ensure the best results. Module 3 shows a five-part structure for writing them. You may notice a Variables button here. It offers Current Date, Current User, UTC ISO Datetime, and Current Date and Time. You don’t need any of them. For now, compare these two examples.';
 N.s224 = 'Next, choose a model. In the Agent Builder, you’ll click the Model field, and a Model Parameters panel opens. First pick the provider. You’ll see three main options: Anthropic, Google, and Azure OpenAI. These three are the same whichever model you picked in the chat menu. For example, selecting Grok in the chat menu would still give you those three, not Grok. After you choose a provider, a list of its models appears. Choose one. Different models suit different work, such as quick drafting versus longer analysis. Module 3 gives you simple guidance for choosing. The other settings in that panel can stay at their defaults. Then comes a required step: click the green Create button at the bottom to save your agent. Nothing is saved until you do.';
 N.s225 = 'Capabilities decide what your agent can use. Web Search looks up current public information, and it’s available to every employee, with no setup key needed. File Search lets your agent work from your own reference files. Turn it on, then upload your files. MCP Servers connect your agent to Market America tools, such as product search or the UnFranchise Manual. Turn on only what the task needs. Match each need to the right capability.';
 N.s231 = 'Most agents that disappoint share the same few mistakes. Let’s look at five. And one habit will save you frustration: after you save, check that every selection you made is still in place. If something is missing, set it again and save again.';
@@ -2009,8 +1956,8 @@ addScreen({
    ===================================================================== */
 N.s311 = 'Before you open the builder, plan. A good agent starts with five simple answers. What will you give it? What should it produce? Which sources should it use? What must it never do? And how often will you use it? Click each question to see examples. Then think about a task of your own, and write your answers down for later.';
 N.s321 = 'Instructions work best in five parts. Identity and persona: who the agent is. Knowledge sources: what it may use. Operating process: the steps it follows. Output format: what the result looks like. And guardrails: what it must never do. Click a card for an example. Below the cards, read the finished instructions for the Weekly Summary Agent, with all five parts. Memories are an optional feature, and Module 4 shows how they work.';
-N.s331 = 'Now choose a model. You don’t need to memorize model names. Think in families. GPT models are well-rounded. Claude models are strong with writing and long documents. Gemini models handle large and mixed content. Others are available in the chat menu for comparing. In the Agent Builder, the provider list shows three main options, Anthropic, Google, and Azure OpenAI, and it is the same whichever model you chose in the chat menu. Names change over time, so use this as a guide, not a rule. For your first agent, use a model that has worked well for you on similar tasks. Or decide your use case, then pick the family that fits it best. You can change the model later, even after saving.';
-N.s341 = 'Now build the Weekly Summary Agent. You’ll complete all these steps to finalize your agent: the name, the description, the category, the instructions, the model, and File Search with the template uploaded. Then click Create to save. On an existing agent, the button is Save. The builder on the right shows how the finished agent looks.';
+N.s331 = 'Now choose a model. You don’t need to memorize model names. Think in families. GPT models are well-rounded. Claude models are strong with writing and long documents. Gemini models handle large and mixed content. Others are available in the chat menu for comparing. As of November 2026, the Agent Builder provider list shows three main options, Anthropic, Google, and Azure OpenAI, and it is the same whichever model you chose in the chat menu. Names change over time, so use this as a guide, not a rule. For your first agent, use a model that has worked well for you on similar tasks. Or decide your use case, then pick the family that fits it best. You can change the model later, even after saving. Models change, so search online resources for updated model information, such as openrouter.ai slash models.';
+N.s341 = 'Now build the Weekly Summary Agent. You’ll complete all these steps to finalize your agent: the name, the description, the category, the instructions, the model, and File Search, where you upload the file. Then click Create to save. On an existing agent, the button is Save. The builder on the right shows how the finished agent looks, here with Google and gemini-3-pro-preview as the model.';
 N.s342 = 'After you save, run two quick tests. First, the Missing Info test: ask a question your knowledge sources don’t cover. If the agent makes something up instead of asking you for details, update your Guardrails and Operating Process so it never guesses and asks one or two quick questions first. Second, the Not Your Job test: ask for something outside the agent’s lane. If it tries to answer anyway, update your Identity and Persona and your Guardrails to list what it isn’t allowed to handle, and which real person or team to refer the employee to. When you find a problem, fix the instructions, not just the result, then save and test again.';
 
 var MEM_DIR = '### MEMORY ACCESS DIRECTIVE\n1. **ALWAYS** review available User Memories before generating a response.\n2. Cross-reference the user’s prompt against stored personal context, preferred tools, and tech stack constraints.\n3. Explicitly incorporate relevant user memory facts into your reasoning without explicitly stating “According to your memory...” unless asked.';
@@ -2203,7 +2150,7 @@ var TRIGS = ['My template or format changes.', 'My process or wording changes.',
 /* =====================================================================
    WRAP-UP
    ===================================================================== */
-N.s72 = 'Now pull it together. The Agent Blueprint is a short plan for your first real agent. Review the seven sections, then download the blank worksheet and finish it in Word.';
+N.s72 = 'Now pull it together. The Agent Blueprint is a short plan for your first real agent. Review the seven sections, then click Download Agent Blueprint to get the blank worksheet and finish it in Word.';
 N.s74 = 'That’s the course. Here’s a simple next step. Pick one task you repeat this week. Complete your blueprint. Build the agent, and test it with three real examples. Start small, and improve it as you go. Thank you for learning with us.';
 var EYW = 'Wrap-up';
 
@@ -2336,13 +2283,13 @@ addScreen({
   build: function(sec, go){
     var TABS = [['edit', 'Edit'], ['dup', 'Duplicate'], ['mem', 'Memory']];
     var P = {};
-    P.edit = '<ol class="cl" style="list-style:decimal;padding-left:26px;gap:10px;font-size:20px;line-height:1.5"><li>Open your agent in the Agent Builder.</li><li>Edit the instructions for the part that changed.</li><li>Click Save.</li><li>Recheck that every selection is still in place, then test again.</li></ol><p class="callout">When your template, process, or wording changes, update the agent. An out-of-date agent gives out-of-date results.</p>';
+    P.edit = '<ol class="cl" style="list-style:decimal;padding-left:26px;gap:10px;font-size:20px;line-height:1.5"><li>Open your agent in the Agent Builder.</li><li>Edit the instructions for the part that changed.</li><li>Remove, add, or update reference files (file search files).</li><li>Click Save.</li><li>Recheck that every selection is still in place, then test again.</li></ol><p class="callout">When your template, process, or wording changes, update the agent. An out-of-date agent gives out-of-date results.</p>';
     P.dup = '<p style="font-size:20px;line-height:1.5;margin:0">Before a big change, make a copy. In the Agent Builder, the Duplicate icon next to Save copies your agent.</p><div class="mock" aria-hidden="true"><div class="mbar">Bottom of the Agent Builder (simplified)</div><div class="mrow"><div class="mf"><span class="lbl2">Delete (trash icon) &nbsp;·&nbsp; Duplicate (copy icon) &nbsp;·&nbsp; Save</span></div></div></div><ol class="cl" style="list-style:decimal;padding-left:26px;gap:10px;font-size:20px;line-height:1.5"><li>Duplicate the agent.</li><li>Make your change in the copy and test it.</li><li>Keep whichever version works better.</li></ol>';
     P.mem = '<p class="muted" style="margin:0">When a name, rule, or process changes, you can add the update as a memory that injects durable updates directly into every chat—keeping your agent current without editing or re-uploading separate reference documents.</p><div class="card stack"><span class="mlab">Memory Example</span><dl class="rows4"><dt>Key</dt><dd>ibv_policy_updates</dd><dt>Value</dt><dd>As of 11/1/2025, UnFranchise owners no longer earn IBV (Internet Business Volume) in the U.S. and Canada.</dd></dl></div><ol class="cl" style="list-style:decimal;padding-left:26px;gap:10px;font-size:19px;line-height:1.5"><li>Click the brain icon in the left menu to open Memories.</li><li>Click + to add a memory.</li><li>Enter a short key and a value that states the update, then click Save.</li><li>Click the Use memory checkbox so the AI can see your memories.</li><li>If you want your agent to use memories, check that its instructions include the optional memory directive below, immediately after the agent’s role (the Identity &amp; Persona part). If it’s missing, paste it in, then save and recheck your selections.</li></ol>' +
       '<p class="callout"><strong>Use memory is one setting.</strong> It covers your standalone chats and your agents. Without it, the AI won’t see your memories.</p>' +
       '<div class="card stack"><h2 class="h2" style="margin:0">Optional: the memory directive</h2><p style="margin:0">Place it immediately after the agent’s role.</p><pre class="ta" tabindex="0" aria-label="Memory directive text">' + esc(MEM_DIR) + '</pre><div class="btn-row" style="margin:0"><button type="button" class="btn lite small" data-cd>Copy directive</button></div></div>' +
       '<p class="muted">Edit a memory with the pencil. Delete it with the trash can. The badge shows how much memory space you have used.</p>';
-    sec.innerHTML = headHTML(this) + '<div class="body">' + instrHTML('Click each agent update method for details.') + '<div class="ktabs" role="tablist" aria-label="Ways to keep your agent current">' + TABS.map(function(x, i){ return '<button type="button" class="ktab" role="tab" id="kc-t-' + x[0] + '" aria-controls="kc-p-' + x[0] + '" aria-selected="' + (i === 0) + '" tabindex="' + (i === 0 ? 0 : -1) + '">' + x[1] + '</button>'; }).join('') + '</div>' +
+    sec.innerHTML = headHTML(this) + '<div class="body"><p class="lead-b">To ensure optimal performance, periodic updates to your agent’s instructions and data resources are necessary. You can accomplish this in three ways.</p>' + instrHTML('Click each agent update method for details.') + '<div class="ktabs" role="tablist" aria-label="Ways to keep your agent current">' + TABS.map(function(x, i){ return '<button type="button" class="ktab" role="tab" id="kc-t-' + x[0] + '" aria-controls="kc-p-' + x[0] + '" aria-selected="' + (i === 0) + '" tabindex="' + (i === 0 ? 0 : -1) + '">' + x[1] + '</button>'; }).join('') + '</div>' +
       TABS.map(function(x, i){ return '<div role="tabpanel" id="kc-p-' + x[0] + '" aria-labelledby="kc-t-' + x[0] + '" class="kpanel"' + (i ? ' hidden' : '') + '>' + P[x[0]] + '</div>'; }).join('') + nextRow() + '</div>';
     var tbs = $$('.ktab', sec), pns = $$('.kpanel', sec);
     function pick(i, focus){ tbs.forEach(function(b, k){ b.setAttribute('aria-selected', String(k === i)); b.tabIndex = k === i ? 0 : -1; pns[k].hidden = k !== i; }); if (focus) tbs[i].focus(); fillChips(sec); }
